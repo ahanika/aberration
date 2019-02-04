@@ -10,9 +10,9 @@ using namespace std;
 
 const double EPSILON = DBL_EPSILON;
 //const double EPSILON = 0.00000001;
-const int M = 3; // Максимальная степень полинома
+const int M = 3; // РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ СЃС‚РµРїРµРЅСЊ РїРѕР»РёРЅРѕРјР°
 
-				 // Метод Гауса для поиска коэффициентов полинома
+				 // РњРµС‚РѕРґ Р“Р°СѓСЃР° РґР»СЏ РїРѕРёСЃРєР° РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ РїРѕР»РёРЅРѕРјР°
 std::vector<double> gauss(std::vector<std::vector<double>> a, std::vector<double> y, int n)
 {
 	double max;
@@ -21,7 +21,7 @@ std::vector<double> gauss(std::vector<std::vector<double>> a, std::vector<double
 	k = 0;
 	while (k < n)
 	{
-		// Поиск строки с максимальным a[i][k]
+		// РџРѕРёСЃРє СЃС‚СЂРѕРєРё СЃ РјР°РєСЃРёРјР°Р»СЊРЅС‹Рј a[i][k]
 		max = abs(a[k][k]);
 		index = k;
 		for (int i = k + 1; i < n; i++)
@@ -32,10 +32,10 @@ std::vector<double> gauss(std::vector<std::vector<double>> a, std::vector<double
 				index = i;
 			}
 		}
-		// Перестановка строк
+		// РџРµСЂРµСЃС‚Р°РЅРѕРІРєР° СЃС‚СЂРѕРє
 		if (max < EPSILON)
 		{
-			// нет нулевых диагональных элементов
+			// РЅРµС‚ РЅСѓР»РµРІС‹С… РґРёР°РіРѕРЅР°Р»СЊРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ
 			cout << "It`s impossible to take a solution because of o-column";
 			cout << index << "of matrix A" << endl;
 			return {};
@@ -49,17 +49,17 @@ std::vector<double> gauss(std::vector<std::vector<double>> a, std::vector<double
 		double temp = y[k];
 		y[k] = y[index];
 		y[index] = temp;
-		// Нормализация уравнений
+		// РќРѕСЂРјР°Р»РёР·Р°С†РёСЏ СѓСЂР°РІРЅРµРЅРёР№
 		for (int i = k; i < n; i++)
 		{
 			double temp = a[i][k];
-			if (abs(temp) < EPSILON) continue; // для нулевого коэффициента пропустить
+			if (abs(temp) < EPSILON) continue; // РґР»СЏ РЅСѓР»РµРІРѕРіРѕ РєРѕСЌС„С„РёС†РёРµРЅС‚Р° РїСЂРѕРїСѓСЃС‚РёС‚СЊ
 			for (int j = 0; j < n; j++)
 			{
 				a[i][j] = a[i][j] / temp;
 			}
 			y[i] = y[i] / temp;
-			if (i == k) continue; // уравнение не вычитать из самого себя
+			if (i == k) continue; // СѓСЂР°РІРЅРµРЅРёРµ РЅРµ РІС‹С‡РёС‚Р°С‚СЊ РёР· СЃР°РјРѕРіРѕ СЃРµР±СЏ
 			for (int j = 0; j < n; j++)
 			{
 				a[i][j] = a[i][j] - a[k][j];
@@ -68,7 +68,7 @@ std::vector<double> gauss(std::vector<std::vector<double>> a, std::vector<double
 		}
 		k++;
 	}
-	// обратная подстановка
+	// РѕР±СЂР°С‚РЅР°СЏ РїРѕРґСЃС‚Р°РЅРѕРІРєР°
 	for (k = n - 1; k >= 0; k--)
 	{
 		x[k] = y[k];
@@ -80,14 +80,14 @@ std::vector<double> gauss(std::vector<std::vector<double>> a, std::vector<double
 	return x;
 }
 
-// Функция расчета разницы между координатам в различных каналах
+// Р¤СѓРЅРєС†РёСЏ СЂР°СЃС‡РµС‚Р° СЂР°Р·РЅРёС†С‹ РјРµР¶РґСѓ РєРѕРѕСЂРґРёРЅР°С‚Р°Рј РІ СЂР°Р·Р»РёС‡РЅС‹С… РєР°РЅР°Р»Р°С…
 double CalcChannelDif(KeyPoint B, KeyPoint G, KeyPoint R)
 {
 	//return pow((pow((G.pt.x - B.pt.x), 2) + pow((G.pt.y - B.pt.y), 2) + pow((G.pt.x - R.pt.x), 2) + pow((G.pt.y - R.pt.y), 2)), 1/2);
 	return abs(G.pt.x - B.pt.x) + abs(G.pt.y - B.pt.y) + abs(G.pt.x - R.pt.x) + abs(G.pt.y - R.pt.y);
 }
 
-// Функция для поиска номера координат центра изображения в векторе
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїРѕРёСЃРєР° РЅРѕРјРµСЂР° РєРѕРѕСЂРґРёРЅР°С‚ С†РµРЅС‚СЂР° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РІ РІРµРєС‚РѕСЂРµ
 int GetImageCenterNumber(vector<vector<KeyPoint>> keypoints)
 {
 	int number = 0;
@@ -105,7 +105,7 @@ int GetImageCenterNumber(vector<vector<KeyPoint>> keypoints)
 	return number;
 }
 
-// Функция суммирования, возведенных в степень значений (матрица a)
+// Р¤СѓРЅРєС†РёСЏ СЃСѓРјРјРёСЂРѕРІР°РЅРёСЏ, РІРѕР·РІРµРґРµРЅРЅС‹С… РІ СЃС‚РµРїРµРЅСЊ Р·РЅР°С‡РµРЅРёР№ (РјР°С‚СЂРёС†Р° a)
 double sumPowA(vector<KeyPoint> pointsToSum, int xPow1, int yPow1, int xPow2, int yPow2)
 {
 	double result = 0;
@@ -116,7 +116,7 @@ double sumPowA(vector<KeyPoint> pointsToSum, int xPow1, int yPow1, int xPow2, in
 	return result;
 }
 
-// Функция суммирования, возведенных в степень значений (вектор y)
+// Р¤СѓРЅРєС†РёСЏ СЃСѓРјРјРёСЂРѕРІР°РЅРёСЏ, РІРѕР·РІРµРґРµРЅРЅС‹С… РІ СЃС‚РµРїРµРЅСЊ Р·РЅР°С‡РµРЅРёР№ (РІРµРєС‚РѕСЂ y)
 double sumPowY(vector<KeyPoint> pointsToSumG, vector<KeyPoint> pointsToSum, int xPow, int yPow, bool useX)
 {
 	double result = 0;
@@ -136,17 +136,17 @@ double sumPowY(vector<KeyPoint> pointsToSumG, vector<KeyPoint> pointsToSum, int 
 	return result;
 }
 
-// Функция для расчета коэффициентов полинома для каналов
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ СЂР°СЃС‡РµС‚Р° РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ РїРѕР»РёРЅРѕРјР° РґР»СЏ РєР°РЅР°Р»РѕРІ
 void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> channelToCalc, int polNumber, bool calcX)
 {
-	// Инициализируем промежуточные массивы для решения системы уравнений
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹Рµ РјР°СЃСЃРёРІС‹ РґР»СЏ СЂРµС€РµРЅРёСЏ СЃРёСЃС‚РµРјС‹ СѓСЂР°РІРЅРµРЅРёР№
 	//std::vector<std::vector<double>> a(polNumber, std::vector<double>(polNumber, 0));
 	//std::vector<double> y(polNumber, 0);
 
 	double *a = new double[polNumber * polNumber];
 	double *y = new double[polNumber];
 
-	// Вычисляем коэффициенты матрицы a
+	// Р’С‹С‡РёСЃР»СЏРµРј РєРѕСЌС„С„РёС†РёРµРЅС‚С‹ РјР°С‚СЂРёС†С‹ a
 	int tempX1 = M;
 	int tempY1 = 0;
 	int tempX2 = M;
@@ -181,7 +181,7 @@ void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> ch
 		}
 	}
 
-	// Вычисляем коэффициенты вектора y
+	// Р’С‹С‡РёСЃР»СЏРµРј РєРѕСЌС„С„РёС†РёРµРЅС‚С‹ РІРµРєС‚РѕСЂР° y
 	int tempX = M;
 	int tempY = 0;
 	for (int i = 0; i < polNumber; ++i)
@@ -200,7 +200,7 @@ void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> ch
 		}
 	}
 	//printf("\n");
-	// Вычисляем коэффициенты полинома
+	// Р’С‹С‡РёСЃР»СЏРµРј РєРѕСЌС„С„РёС†РёРµРЅС‚С‹ РїРѕР»РёРЅРѕРјР°
 	//return gauss(a, y, polNumber);
 
 	gsl_matrix_view m = gsl_matrix_view_array(a, polNumber, polNumber);
@@ -223,7 +223,7 @@ void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> ch
 	gsl_vector_free(x);
 }
 
-// Функция для вычисления новой координаты субпикселя полиномом
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РЅРѕРІРѕР№ РєРѕРѕСЂРґРёРЅР°С‚С‹ СЃСѓР±РїРёРєСЃРµР»СЏ РїРѕР»РёРЅРѕРјРѕРј
 double calcNewValuePol(double oldValueX, double oldValueY, double * polValues, int polNumber)
 {
 	double newValue = 0;
@@ -247,7 +247,7 @@ double calcNewValuePol(double oldValueX, double oldValueY, double * polValues, i
 	return newValue;
 }
 
-// Функция, заменяющая значения субпикселя по координате
+// Р¤СѓРЅРєС†РёСЏ, Р·Р°РјРµРЅСЏСЋС‰Р°СЏ Р·РЅР°С‡РµРЅРёСЏ СЃСѓР±РїРёРєСЃРµР»СЏ РїРѕ РєРѕРѕСЂРґРёРЅР°С‚Рµ
 void changeSubP(Mat image, int x, int y, int value, int channel)
 {
 	Vec3b tempVec;
@@ -275,41 +275,41 @@ void changeSubP(Mat image, int x, int y, int value, int channel)
 	image.at<Vec3b>(Point(y, x)) = tempVec;
 }
 
-// Объявляем детектор блобов
+// РћР±СЉСЏРІР»СЏРµРј РґРµС‚РµРєС‚РѕСЂ Р±Р»РѕР±РѕРІ
 SimpleBlobDetector::Params params;
 
-// Задаем количество кружков на изображении
+// Р—Р°РґР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РєСЂСѓР¶РєРѕРІ РЅР° РёР·РѕР±СЂР°Р¶РµРЅРёРё
 int circleNum = 9;
 
-// Номер координат центра изображения
+// РќРѕРјРµСЂ РєРѕРѕСЂРґРёРЅР°С‚ С†РµРЅС‚СЂР° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
 int centerNumber;
 
-// Векторы хранения центров блобов
+// Р’РµРєС‚РѕСЂС‹ С…СЂР°РЅРµРЅРёСЏ С†РµРЅС‚СЂРѕРІ Р±Р»РѕР±РѕРІ
 vector<vector<KeyPoint>> keypointsBGR;
 
-// Векторы хранения центров пересчитанных блобов
+// Р’РµРєС‚РѕСЂС‹ С…СЂР°РЅРµРЅРёСЏ С†РµРЅС‚СЂРѕРІ РїРµСЂРµСЃС‡РёС‚Р°РЅРЅС‹С… Р±Р»РѕР±РѕРІ
 vector<vector<KeyPoint>> keypointsNewBGR;
 
-// Оригинальная картинка
+// РћСЂРёРіРёРЅР°Р»СЊРЅР°СЏ РєР°СЂС‚РёРЅРєР°
 Mat imageOrigin;
 
-// Скорректированная картинка
+// РЎРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°РЅРЅР°СЏ РєР°СЂС‚РёРЅРєР°
 Mat imageCorrected;
 
-// Массив для каналов картинки (bgr)
+// РњР°СЃСЃРёРІ РґР»СЏ РєР°РЅР°Р»РѕРІ РєР°СЂС‚РёРЅРєРё (bgr)
 Mat imageChannels[3];
 
-// Массивы для хранения значений полиномов
+// РњР°СЃСЃРёРІС‹ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р·РЅР°С‡РµРЅРёР№ РїРѕР»РёРЅРѕРјРѕРІ
 std::vector<double> pxb, pyb, pxr, pyr;
 
 int main(int argc, char** argv)
 {
-	// Уточняем размерность вектора центров окружностей
+	// РЈС‚РѕС‡РЅСЏРµРј СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРµРєС‚РѕСЂР° С†РµРЅС‚СЂРѕРІ РѕРєСЂСѓР¶РЅРѕСЃС‚РµР№
 	keypointsBGR.resize(3, vector<KeyPoint>(circleNum));
 	keypointsNewBGR.resize(3, vector<KeyPoint>(circleNum));
 
-	// Здесь начинаются параметры для поиска блобов
-	// Приходится определять их здесь, иначе ошибки
+	// Р—РґРµСЃСЊ РЅР°С‡РёРЅР°СЋС‚СЃСЏ РїР°СЂР°РјРµС‚СЂС‹ РґР»СЏ РїРѕРёСЃРєР° Р±Р»РѕР±РѕРІ
+	// РџСЂРёС…РѕРґРёС‚СЃСЏ РѕРїСЂРµРґРµР»СЏС‚СЊ РёС… Р·РґРµСЃСЊ, РёРЅР°С‡Рµ РѕС€РёР±РєРё
 	params.minThreshold = 10;
 	params.maxThreshold = 200;
 
@@ -325,29 +325,29 @@ int main(int argc, char** argv)
 
 	params.filterByInertia = true;
 	params.minInertiaRatio = 0.01;
-	// Здесь заканчиваются параметры для поиска блобов
-	// Нужно потом попробовать уменьшить их количество
+	// Р—РґРµСЃСЊ Р·Р°РєР°РЅС‡РёРІР°СЋС‚СЃСЏ РїР°СЂР°РјРµС‚СЂС‹ РґР»СЏ РїРѕРёСЃРєР° Р±Р»РѕР±РѕРІ
+	// РќСѓР¶РЅРѕ РїРѕС‚РѕРј РїРѕРїСЂРѕР±РѕРІР°С‚СЊ СѓРјРµРЅСЊС€РёС‚СЊ РёС… РєРѕР»РёС‡РµСЃС‚РІРѕ
 
-	// Создаем детектор блобов с параметрами
+	// РЎРѕР·РґР°РµРј РґРµС‚РµРєС‚РѕСЂ Р±Р»РѕР±РѕРІ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё
 	Ptr<SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
 
-	// Считываем картинку из папки
-	// Сделать так, чтобы программа принимала параметр из параметра командной строки?
+	// РЎС‡РёС‚С‹РІР°РµРј РєР°СЂС‚РёРЅРєСѓ РёР· РїР°РїРєРё
+	// РЎРґРµР»Р°С‚СЊ С‚Р°Рє, С‡С‚РѕР±С‹ РїСЂРѕРіСЂР°РјРјР° РїСЂРёРЅРёРјР°Р»Р° РїР°СЂР°РјРµС‚СЂ РёР· РїР°СЂР°РјРµС‚СЂР° РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё?
 	imageOrigin = imread(argv[1], CV_LOAD_IMAGE_COLOR);
 
-	// Инициализируем пустую картинку той же размерности, что и оригинальная
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РїСѓСЃС‚СѓСЋ РєР°СЂС‚РёРЅРєСѓ С‚РѕР№ Р¶Рµ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё, С‡С‚Рѕ Рё РѕСЂРёРіРёРЅР°Р»СЊРЅР°СЏ
 	Mat imageCorrected(imageOrigin.rows, imageOrigin.cols, imageOrigin.type(), Scalar(0, 0, 0));
 
-	// Разбиваем картинку на цветовые каналы
+	// Р Р°Р·Р±РёРІР°РµРј РєР°СЂС‚РёРЅРєСѓ РЅР° С†РІРµС‚РѕРІС‹Рµ РєР°РЅР°Р»С‹
 	split(imageOrigin, imageChannels);
 
-	// Определяем центры кругов на каждом цветовом канале
+	// РћРїСЂРµРґРµР»СЏРµРј С†РµРЅС‚СЂС‹ РєСЂСѓРіРѕРІ РЅР° РєР°Р¶РґРѕРј С†РІРµС‚РѕРІРѕРј РєР°РЅР°Р»Рµ
 	for (int i = 0; i < 3; ++i)
 	{
 		detector->detect(imageChannels[i], keypointsBGR[i]);
 	}
 
-	// Получаем номер координат центра изображения в векторе
+	// РџРѕР»СѓС‡Р°РµРј РЅРѕРјРµСЂ РєРѕРѕСЂРґРёРЅР°С‚ С†РµРЅС‚СЂР° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РІ РІРµРєС‚РѕСЂРµ
 	centerNumber = GetImageCenterNumber(keypointsBGR);
 	for (int i = 0; i < 3; ++i)
 	{
@@ -358,7 +358,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	//// Выводим пересчитанные относительно нового центра координаты центров окружностей
+	//// Р’С‹РІРѕРґРёРј РїРµСЂРµСЃС‡РёС‚Р°РЅРЅС‹Рµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РЅРѕРІРѕРіРѕ С†РµРЅС‚СЂР° РєРѕРѕСЂРґРёРЅР°С‚С‹ С†РµРЅС‚СЂРѕРІ РѕРєСЂСѓР¶РЅРѕСЃС‚РµР№
 	//for (int i = 0; i < 3; ++i)
 	//{
 	//	printf("\nChannel %d:\n", i + 1);
@@ -368,10 +368,10 @@ int main(int argc, char** argv)
 	//	}
 	//}
 
-	// Число коэффициентов в полиноме
+	// Р§РёСЃР»Рѕ РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ РІ РїРѕР»РёРЅРѕРјРµ
 	int pNum = ((M + 1) * (M + 2)) / 2;
 
-	// Инициализируем вектора для искомых значений полиномов
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РІРµРєС‚РѕСЂР° РґР»СЏ РёСЃРєРѕРјС‹С… Р·РЅР°С‡РµРЅРёР№ РїРѕР»РёРЅРѕРјРѕРІ
 	//std::vector<double> pxb(pNum, 0);
 	//std::vector<double> pyb(pNum, 0);
 	//std::vector<double> pxr(pNum, 0);
@@ -382,11 +382,11 @@ int main(int argc, char** argv)
 	double *pxr = new double[pNum];
 	double *pyr = new double[pNum];
 
-	// Считаем коэфициенты полинома для каждого канала
-	calcPol(pxb, keypointsNewBGR[1], keypointsBGR[0], pNum, true); // Синий X координаты
-	calcPol(pyb, keypointsNewBGR[1], keypointsBGR[0], pNum, false); // Синиий Y координаты
-	calcPol(pxr, keypointsNewBGR[1], keypointsBGR[2], pNum, true); // Красный X координаты
-	calcPol(pyr, keypointsNewBGR[1], keypointsBGR[2], pNum, false); // Красный Y координаты
+	// РЎС‡РёС‚Р°РµРј РєРѕСЌС„РёС†РёРµРЅС‚С‹ РїРѕР»РёРЅРѕРјР° РґР»СЏ РєР°Р¶РґРѕРіРѕ РєР°РЅР°Р»Р°
+	calcPol(pxb, keypointsNewBGR[1], keypointsBGR[0], pNum, true); // РЎРёРЅРёР№ X РєРѕРѕСЂРґРёРЅР°С‚С‹
+	calcPol(pyb, keypointsNewBGR[1], keypointsBGR[0], pNum, false); // РЎРёРЅРёРёР№ Y РєРѕРѕСЂРґРёРЅР°С‚С‹
+	calcPol(pxr, keypointsNewBGR[1], keypointsBGR[2], pNum, true); // РљСЂР°СЃРЅС‹Р№ X РєРѕРѕСЂРґРёРЅР°С‚С‹
+	calcPol(pyr, keypointsNewBGR[1], keypointsBGR[2], pNum, false); // РљСЂР°СЃРЅС‹Р№ Y РєРѕРѕСЂРґРёРЅР°С‚С‹
 
 																	/*printf("\nBlue X coordinates\n");
 																	for (int i = 0; i < pNum; ++i)
@@ -412,7 +412,7 @@ int main(int argc, char** argv)
 																	printf("%f\n", pyr[i]);
 																	}*/
 
-																	// Пересчитываем координаты субпикселей в новое изображение
+																	// РџРµСЂРµСЃС‡РёС‚С‹РІР°РµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ СЃСѓР±РїРёРєСЃРµР»РµР№ РІ РЅРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 	double oldTempBX, oldTempBY;
 	int newCoordBX, newCoordBY;
 	int rows = imageOrigin.rows;
@@ -422,7 +422,7 @@ int main(int argc, char** argv)
 	{
 		for (int j = 0; j < cols; ++j)
 		{
-			// Синий канал
+			// РЎРёРЅРёР№ РєР°РЅР°Р»
 			oldTempBX = j - keypointsBGR[1][centerNumber].pt.x;
 			oldTempBY = i - keypointsBGR[1][centerNumber].pt.y;
 			newCoordBX = int(calcNewValuePol(oldTempBX, oldTempBY, pxb, pNum) + keypointsBGR[1][centerNumber].pt.x);
@@ -432,10 +432,10 @@ int main(int argc, char** argv)
 				changeSubP(imageCorrected, newCoordBX, newCoordBY, imageOrigin.at<Vec3b>(Point(i, j))[0], 0);
 			}
 
-			// Зеленый канал
+			// Р—РµР»РµРЅС‹Р№ РєР°РЅР°Р»
 			changeSubP(imageCorrected, j, i, imageOrigin.at<Vec3b>(Point(i, j))[1], 1);
 
-			// Красный канал
+			// РљСЂР°СЃРЅС‹Р№ РєР°РЅР°Р»
 			oldTempBX = keypointsBGR[1][centerNumber].pt.x - j;
 			oldTempBY = keypointsBGR[1][centerNumber].pt.y - i;
 			newCoordBX = int(calcNewValuePol(oldTempBX, oldTempBY, pxr, pNum) + keypointsBGR[1][centerNumber].pt.x);
