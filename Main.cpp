@@ -153,11 +153,13 @@ void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> ch
 	int tempY2 = 0;
 	for (int i = 0; i < polNumber; ++i)
 	{
+		printf("\n");
 		tempX2 = M;
 		tempY2 = 0;
 		for (int j = 0; j < polNumber; ++j)
 		{
 			a[polNumber * i + j] = sumPowA(channelToCalc, tempX1, tempY1, tempX2, tempY2);
+			printf("%f\t", a[polNumber * i + j]);
 			if (tempX2 == 0)
 			{
 				tempX2 = tempY2 - 1;
@@ -180,14 +182,14 @@ void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> ch
 			++tempY1;
 		}
 	}
-
+	printf("\n");
 	// Вычисляем коэффициенты вектора y
 	int tempX = M;
 	int tempY = 0;
 	for (int i = 0; i < polNumber; ++i)
 	{
 		y[i] = sumPowY(channelGreen, channelToCalc, tempX, tempY, calcX);
-		//printf("%f\n", y[i]);
+		printf("%f\t", y[i]);
 		if (tempX == 0)
 		{
 			tempX = tempY - 1;
@@ -199,7 +201,7 @@ void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> ch
 			++tempY;
 		}
 	}
-	//printf("\n");
+	printf("\n");
 	// Вычисляем коэффициенты полинома
 	//return gauss(a, y, polNumber);
 
@@ -217,8 +219,18 @@ void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> ch
 
 	gsl_linalg_LU_solve(&m.matrix, p, &b.vector, x);
 
-	result = x->data;
+	//result = x->data;
+	
+	for (int i = 0; i < polNumber; i++)
+	{
+		result[i] = x->data[i];
+	}
 
+	for (int i = 0; i < polNumber; i++)
+	{
+		printf("%f\t", result[i]);
+	}
+	printf("\n\n\n");
 	gsl_permutation_free(p);
 	gsl_vector_free(x);
 }
@@ -232,6 +244,7 @@ double calcNewValuePol(double oldValueX, double oldValueY, double * polValues, i
 
 	for (int i = 0; i < polNumber; ++i)
 	{
+		//printf("%f\t", polValues[i]);
 		newValue += polValues[i] * pow(oldValueX, powX) * pow(oldValueY, powY);
 		if (powX == 0)
 		{
@@ -244,6 +257,7 @@ double calcNewValuePol(double oldValueX, double oldValueY, double * polValues, i
 			++powY;
 		}
 	}
+	//printf("\n");
 	return newValue;
 }
 
@@ -377,6 +391,11 @@ int main(int argc, char** argv)
 	//std::vector<double> pxr(pNum, 0);
 	//std::vector<double> pyr(pNum, 0);
 
+	//double *pxb = new double[pNum];
+	//double *pyb = new double[pNum];
+	//double *pxr = new double[pNum];
+	//double *pyr = new double[pNum];
+
 	double *pxb = new double[pNum];
 	double *pyb = new double[pNum];
 	double *pxr = new double[pNum];
@@ -427,6 +446,9 @@ int main(int argc, char** argv)
 			oldTempBY = i - keypointsBGR[1][centerNumber].pt.y;
 			newCoordBX = int(calcNewValuePol(oldTempBX, oldTempBY, pxb, pNum) + keypointsBGR[1][centerNumber].pt.x);
 			newCoordBY = int(calcNewValuePol(oldTempBX, oldTempBY, pyb, pNum) + keypointsBGR[1][centerNumber].pt.y);
+
+			//printf("(%d %d) -> (%d %d)\n", int(oldTempBX), int(oldTempBY), int(newCoordBX), int(newCoordBY));
+
 			if (newCoordBX >= 0 && newCoordBX < cols && newCoordBY >= 0 && newCoordBY < rows)
 			{
 				changeSubP(imageCorrected, newCoordBX, newCoordBY, imageOrigin.at<Vec3b>(Point(i, j))[0], 0);
