@@ -10,81 +10,14 @@ using namespace std;
 
 const double EPSILON = DBL_EPSILON;
 //const double EPSILON = 0.00000001;
-const int M = 3; // Максимальная степень полинома
-
-				 // Метод Гауса для поиска коэффициентов полинома
-std::vector<double> gauss(std::vector<std::vector<double>> a, std::vector<double> y, int n)
-{
-	double max;
-	std::vector<double> x(n, 0);
-	int k, index;
-	k = 0;
-	while (k < n)
-	{
-		// Поиск строки с максимальным a[i][k]
-		max = abs(a[k][k]);
-		index = k;
-		for (int i = k + 1; i < n; i++)
-		{
-			if (abs(a[i][k]) > max)
-			{
-				max = abs(a[i][k]);
-				index = i;
-			}
-		}
-		// Перестановка строк
-		if (max < EPSILON)
-		{
-			// нет нулевых диагональных элементов
-			cout << "It`s impossible to take a solution because of o-column";
-			cout << index << "of matrix A" << endl;
-			return {};
-		}
-		for (int j = 0; j < n; j++)
-		{
-			double temp = a[k][j];
-			a[k][j] = a[index][j];
-			a[index][j] = temp;
-		}
-		double temp = y[k];
-		y[k] = y[index];
-		y[index] = temp;
-		// Нормализация уравнений
-		for (int i = k; i < n; i++)
-		{
-			double temp = a[i][k];
-			if (abs(temp) < EPSILON) continue; // для нулевого коэффициента пропустить
-			for (int j = 0; j < n; j++)
-			{
-				a[i][j] = a[i][j] / temp;
-			}
-			y[i] = y[i] / temp;
-			if (i == k) continue; // уравнение не вычитать из самого себя
-			for (int j = 0; j < n; j++)
-			{
-				a[i][j] = a[i][j] - a[k][j];
-			}
-			y[i] = y[i] - y[k];
-		}
-		k++;
-	}
-	// обратная подстановка
-	for (k = n - 1; k >= 0; k--)
-	{
-		x[k] = y[k];
-		for (int i = 0; i < k; i++)
-		{
-			y[i] = y[i] - a[i][k] * x[k];
-		}
-	}
-	return x;
-}
+const int M = 2; // Максимальная степень полинома
 
 // Функция расчета разницы между координатам в различных каналах
 double CalcChannelDif(KeyPoint B, KeyPoint G, KeyPoint R)
 {
 	//return pow((pow((G.pt.x - B.pt.x), 2) + pow((G.pt.y - B.pt.y), 2) + pow((G.pt.x - R.pt.x), 2) + pow((G.pt.y - R.pt.y), 2)), 1/2);
-	return abs(G.pt.x - B.pt.x) + abs(G.pt.y - B.pt.y) + abs(G.pt.x - R.pt.x) + abs(G.pt.y - R.pt.y);
+	//return abs(G.pt.x - B.pt.x) + abs(G.pt.y - B.pt.y) + abs(G.pt.x - R.pt.x) + abs(G.pt.y - R.pt.y);
+	return sqrt(pow((G.pt.x - B.pt.x), 2) + pow((G.pt.y - B.pt.y), 2) + pow((G.pt.x - R.pt.x), 2) + pow((G.pt.y - R.pt.y), 2));
 }
 
 // Функция для поиска номера координат центра изображения в векторе
@@ -94,7 +27,7 @@ int GetImageCenterNumber(vector<vector<KeyPoint>> keypoints)
 	double min = CalcChannelDif(keypoints[0][0], keypoints[1][0], keypoints[2][0]);
 	double current;
 	for (int i = 1; i < keypoints[0].size(); ++i)
-	{
+	{		
 		current = CalcChannelDif(keypoints[0][i], keypoints[1][i], keypoints[2][i]);
 		if (current < min)
 		{
@@ -220,7 +153,7 @@ void calcPol(double * result, vector<KeyPoint> channelGreen, vector<KeyPoint> ch
 	gsl_linalg_LU_solve(&m.matrix, p, &b.vector, x);
 
 	//result = x->data;
-	
+
 	for (int i = 0; i < polNumber; i++)
 	{
 		result[i] = x->data[i];
@@ -347,22 +280,38 @@ int main(int argc, char** argv)
 
 	// Считываем картинку из папки
 	// Сделать так, чтобы программа принимала параметр из параметра командной строки?
-	imageOrigin = imread(argv[1], CV_LOAD_IMAGE_COLOR);
+	imageOrigin = imread("C:/opencv/Aberration/x64/Debug/original.jpg", CV_LOAD_IMAGE_COLOR);
 
 	// Инициализируем пустую картинку той же размерности, что и оригинальная
 	Mat imageCorrected(imageOrigin.rows, imageOrigin.cols, imageOrigin.type(), Scalar(0, 0, 0));
 
 	// Разбиваем картинку на цветовые каналы
 	split(imageOrigin, imageChannels);
-
+	
 	// Определяем центры кругов на каждом цветовом канале
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 3; i++)
 	{
 		detector->detect(imageChannels[i], keypointsBGR[i]);
 	}
 
+	float tempX;
+	float tempY;
+	tempX = keypointsBGR[2][6].pt.x;
+	//tempY = keypointsBGR[2][6].pt.y;
+	keypointsBGR[2][6].pt.x = keypointsBGR[2][8].pt.x;
+	//keypointsBGR[2][6].pt.y = keypointsBGR[2][8].pt.y;
+	keypointsBGR[2][8].pt.x = tempX;
+	//keypointsBGR[2][8].pt.y = tempY;
+
+	tempX = keypointsBGR[2][7].pt.x;
+	//tempY = keypointsBGR[2][7].pt.y;
+	keypointsBGR[2][7].pt.x = keypointsBGR[2][8].pt.x;
+	//keypointsBGR[2][7].pt.y = keypointsBGR[2][8].pt.y;
+	keypointsBGR[2][8].pt.x = tempX;
+	//keypointsBGR[2][8].pt.y = tempY;
+
 	// Получаем номер координат центра изображения в векторе
-	centerNumber = GetImageCenterNumber(keypointsBGR);
+ 	centerNumber = GetImageCenterNumber(keypointsBGR);
 	for (int i = 0; i < 3; ++i)
 	{
 		for (int j = 0; j < keypointsBGR[i].size(); ++j)
@@ -371,6 +320,8 @@ int main(int argc, char** argv)
 			keypointsNewBGR[i][j].pt.y = keypointsBGR[i][j].pt.y - keypointsBGR[1][centerNumber].pt.y;
 		}
 	}
+
+	
 
 	//// Выводим пересчитанные относительно нового центра координаты центров окружностей
 	//for (int i = 0; i < 3; ++i)
@@ -402,29 +353,26 @@ int main(int argc, char** argv)
 	double *pyr = new double[pNum];
 
 	// Считаем коэфициенты полинома для каждого канала
-	calcPol(pxb, keypointsNewBGR[1], keypointsBGR[0], pNum, true); // Синий X координаты
-	calcPol(pyb, keypointsNewBGR[1], keypointsBGR[0], pNum, false); // Синиий Y координаты
-	calcPol(pxr, keypointsNewBGR[1], keypointsBGR[2], pNum, true); // Красный X координаты
-	calcPol(pyr, keypointsNewBGR[1], keypointsBGR[2], pNum, false); // Красный Y координаты
+	calcPol(pxb, keypointsNewBGR[1], keypointsNewBGR[0], pNum, true); // Синий X координаты
+	calcPol(pyb, keypointsNewBGR[1], keypointsNewBGR[0], pNum, false); // Синиий Y координаты
+	calcPol(pxr, keypointsNewBGR[1], keypointsNewBGR[2], pNum, true); // Красный X координаты
+	calcPol(pyr, keypointsNewBGR[1], keypointsNewBGR[2], pNum, false); // Красный Y координаты
 
 																	/*printf("\nBlue X coordinates\n");
 																	for (int i = 0; i < pNum; ++i)
 																	{
 																	printf("%f\n", pxb[i]);
 																	}
-
 																	printf("\nBlue Y coordinates\n");
 																	for (int i = 0; i < pNum; ++i)
 																	{
 																	printf("%f\n", pyb[i]);
 																	}
-
 																	printf("\nRed X coordinates\n");
 																	for (int i = 0; i < pNum; ++i)
 																	{
 																	printf("%f\n", pxr[i]);
 																	}
-
 																	printf("\nRed Y coordinates\n");
 																	for (int i = 0; i < pNum; ++i)
 																	{
@@ -470,6 +418,8 @@ int main(int argc, char** argv)
 	}
 
 	imshow("Corrected", imageCorrected);
+	imshow("original", imageOrigin);
+	imwrite("result.jpg", imageCorrected);
 
 	waitKey(0);
 
