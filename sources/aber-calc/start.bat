@@ -1,1 +1,1 @@
-Aberration.exe config.txt
+aber-calc.exe config.txt
